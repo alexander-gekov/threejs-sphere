@@ -48,15 +48,15 @@ pointLight2.intensity = 3.8;
 
 scene.add(pointLight2);
 
-const light1 = gui.addFolder("Light 1");
+// const light1 = gui.addFolder("Light 1");
 
-light1.add(pointLight2.position, "y").step(0.01);
-light1.add(pointLight2.position, "x").step(0.01);
-light1.add(pointLight2.position, "z").step(0.01);
-light1.add(pointLight2, "intensity").step(0.01);
+// light1.add(pointLight2.position, "y").step(0.01);
+// light1.add(pointLight2.position, "x").step(0.01);
+// light1.add(pointLight2.position, "z").step(0.01);
+// light1.add(pointLight2, "intensity").step(0.01);
 
-const pointLightHelper = new THREE.PointLightHelper(pointLight2, 0.5);
-scene.add(pointLightHelper);
+// const pointLightHelper = new THREE.PointLightHelper(pointLight2, 0.5);
+// scene.add(pointLightHelper);
 
 //Light 3
 const pointLight3 = new THREE.PointLight(0xf6ff0, 2);
@@ -65,23 +65,23 @@ pointLight3.intensity = 3.8;
 
 scene.add(pointLight3);
 
-const light2 = gui.addFolder("Light 2");
+// const light2 = gui.addFolder("Light 2");
 
-light2.add(pointLight3.position, "y").step(0.01);
-light2.add(pointLight3.position, "x").step(0.01);
-light2.add(pointLight3.position, "z").step(0.01);
-light2.add(pointLight3, "intensity").step(0.01);
+// light2.add(pointLight3.position, "y").step(0.01);
+// light2.add(pointLight3.position, "x").step(0.01);
+// light2.add(pointLight3.position, "z").step(0.01);
+// light2.add(pointLight3, "intensity").step(0.01);
 
-const light2Color = {
-  color: 0xff0000,
-};
+// const light2Color = {
+//   color: 0xff0000,
+// };
 
-light2.addColor(light2Color, "color").onChange(() => {
-  pointLight3.color.set(light2Color.color);
-});
+// light2.addColor(light2Color, "color").onChange(() => {
+//   pointLight3.color.set(light2Color.color);
+// });
 
-const pointLightHelper2 = new THREE.PointLightHelper(pointLight3, 0.5);
-scene.add(pointLightHelper2);
+// const pointLightHelper2 = new THREE.PointLightHelper(pointLight3, 0.5);
+// scene.add(pointLightHelper2);
 
 /**
  * Sizes
@@ -138,15 +138,43 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
  * Animate
  */
 
+let mouseX = 0;
+let mouseY = 0;
 
+let targetX = 0;
+let targetY = 0;
+
+const windowHalfX = window.innerWidth / 2;
+const windowHalfY = window.innerHeight / 2;
+
+const onDocumentMouseMove = (event) => {
+  mouseX = event.clientX - windowHalfX;
+  mouseY = event.clientY - windowHalfY;
+};
+
+const updateSphere = (event) => {
+  sphere.position.y = window.scrollY * 0.001;
+  sphere.scale = window.scrollY * 1.5;
+};
+
+window.addEventListener("scroll", updateSphere);
+
+document.addEventListener("mousemove", onDocumentMouseMove);
 
 const clock = new THREE.Clock();
 
 const tick = () => {
+  targetX = mouseX * 0.001;
+  targetY = mouseY * 0.001;
+
   const elapsedTime = clock.getElapsedTime();
 
   // Update objects
   sphere.rotation.y = 0.5 * elapsedTime;
+
+  sphere.rotation.y += 0.5 * (targetX - sphere.rotation.y);
+  sphere.rotation.x += 0.05 * (targetY - sphere.rotation.x);
+  sphere.position.z += -0.05 * (targetY - sphere.rotation.x);
 
   // Update Orbital Controls
   // controls.update()
