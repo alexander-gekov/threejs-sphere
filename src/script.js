@@ -1,69 +1,124 @@
-import './style.css'
-import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import * as dat from 'dat.gui'
+import "./style.css";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import * as dat from "dat.gui";
+
+//Loading
+const textureLoader = new THREE.TextureLoader();
+
+const normalTexture = textureLoader.load("/textures/NormalMap1.png");
 
 // Debug
-const gui = new dat.GUI()
+const gui = new dat.GUI();
 
 // Canvas
-const canvas = document.querySelector('canvas.webgl')
+const canvas = document.querySelector("canvas.webgl");
 
 // Scene
-const scene = new THREE.Scene()
+const scene = new THREE.Scene();
 
 // Objects
-const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
+// const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
+const geometry = new THREE.SphereBufferGeometry(0.5, 64, 64);
 
 // Materials
 
-const material = new THREE.MeshBasicMaterial()
-material.color = new THREE.Color(0xff0000)
+const material = new THREE.MeshStandardMaterial();
+material.metalness = 0.7;
+material.roughness = 0.2;
+material.color = new THREE.Color(0x292929);
+material.normalMap = normalTexture;
 
 // Mesh
-const sphere = new THREE.Mesh(geometry,material)
-scene.add(sphere)
+const sphere = new THREE.Mesh(geometry, material);
+scene.add(sphere);
 
 // Lights
 
-const pointLight = new THREE.PointLight(0xffffff, 0.1)
-pointLight.position.x = 2
-pointLight.position.y = 3
-pointLight.position.z = 4
-scene.add(pointLight)
+const pointLight = new THREE.PointLight(0xffffff, 0.1);
+pointLight.position.x = 2;
+pointLight.position.y = 3;
+pointLight.position.z = 4;
+scene.add(pointLight);
+
+//Light 2
+const pointLight2 = new THREE.PointLight(0xff0000, 2);
+pointLight2.position.set(-1.05, 1.59, 0.94);
+pointLight2.intensity = 3.8;
+
+scene.add(pointLight2);
+
+const light1 = gui.addFolder("Light 1");
+
+light1.add(pointLight2.position, "y").step(0.01);
+light1.add(pointLight2.position, "x").step(0.01);
+light1.add(pointLight2.position, "z").step(0.01);
+light1.add(pointLight2, "intensity").step(0.01);
+
+const pointLightHelper = new THREE.PointLightHelper(pointLight2, 0.5);
+scene.add(pointLightHelper);
+
+//Light 3
+const pointLight3 = new THREE.PointLight(0xf6ff0, 2);
+pointLight3.position.set(3.05, -1.26, 0.94);
+pointLight3.intensity = 3.8;
+
+scene.add(pointLight3);
+
+const light2 = gui.addFolder("Light 2");
+
+light2.add(pointLight3.position, "y").step(0.01);
+light2.add(pointLight3.position, "x").step(0.01);
+light2.add(pointLight3.position, "z").step(0.01);
+light2.add(pointLight3, "intensity").step(0.01);
+
+const light2Color = {
+  color: 0xff0000,
+};
+
+light2.addColor(light2Color, "color").onChange(() => {
+  pointLight3.color.set(light2Color.color);
+});
+
+const pointLightHelper2 = new THREE.PointLightHelper(pointLight3, 0.5);
+scene.add(pointLightHelper2);
 
 /**
  * Sizes
  */
 const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
-}
+  width: window.innerWidth,
+  height: window.innerHeight,
+};
 
-window.addEventListener('resize', () =>
-{
-    // Update sizes
-    sizes.width = window.innerWidth
-    sizes.height = window.innerHeight
+window.addEventListener("resize", () => {
+  // Update sizes
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
 
-    // Update camera
-    camera.aspect = sizes.width / sizes.height
-    camera.updateProjectionMatrix()
+  // Update camera
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
 
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-})
+  // Update renderer
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
 
 /**
  * Camera
  */
 // Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 0
-camera.position.y = 0
-camera.position.z = 2
-scene.add(camera)
+const camera = new THREE.PerspectiveCamera(
+  75,
+  sizes.width / sizes.height,
+  0.1,
+  100
+);
+camera.position.x = 0;
+camera.position.y = 0;
+camera.position.z = 2;
+scene.add(camera);
 
 // Controls
 // const controls = new OrbitControls(camera, canvas)
@@ -73,33 +128,34 @@ scene.add(camera)
  * Renderer
  */
 const renderer = new THREE.WebGLRenderer({
-    canvas: canvas
-})
-renderer.setSize(sizes.width, sizes.height)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  canvas: canvas,
+  alpha: true,
+});
+renderer.setSize(sizes.width, sizes.height);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 /**
  * Animate
  */
 
-const clock = new THREE.Clock()
 
-const tick = () =>
-{
 
-    const elapsedTime = clock.getElapsedTime()
+const clock = new THREE.Clock();
 
-    // Update objects
-    sphere.rotation.y = .5 * elapsedTime
+const tick = () => {
+  const elapsedTime = clock.getElapsedTime();
 
-    // Update Orbital Controls
-    // controls.update()
+  // Update objects
+  sphere.rotation.y = 0.5 * elapsedTime;
 
-    // Render
-    renderer.render(scene, camera)
+  // Update Orbital Controls
+  // controls.update()
 
-    // Call tick again on the next frame
-    window.requestAnimationFrame(tick)
-}
+  // Render
+  renderer.render(scene, camera);
 
-tick()
+  // Call tick again on the next frame
+  window.requestAnimationFrame(tick);
+};
+
+tick();
